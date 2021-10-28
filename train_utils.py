@@ -210,29 +210,22 @@ def start_training(model, dso, epochs=100, semi=True, bs=100, verb=1):
 
 
 def do_training(model, images, labels, test_images, test_labels, train_iter=10, batch_size=100, print_test_error=False,
-                verb=1, hflip=True, vf=1, iter='', pseudo_labels=None, pseudo_images=None):
+                verb=1, hflip=True, vf=1, iter=''):
 
     calls = get_callbacks(verb)
     csv_path = "./csvs/{}-{}-supervised-{}-{}.csv".format(iter, str(len(labels)), time.strftime("%d-%m-%Y-%H%M%S"),
                                                           os.uname()[1])
-    # print("saving logs at ", csv_path)
+    print("saving losses at ", csv_path)
     csv = tf.keras.callbacks.CSVLogger(csv_path)
-    # calls.append(csv)
+    calls.append(csv)
     aug = ImageDataGenerator(width_shift_range=0.125, height_shift_range=0.125, fill_mode='nearest',
                              horizontal_flip=hflip)
 
     test_aug = ImageDataGenerator()
     test_generator = test_aug.flow(test_images, test_labels, batch_size=batch_size)
 
-    if pseudo_images is not None:
-
-        labeled_data = aug.flow(images, labels, shuffle=True, batch_size=1)
-        pseudo_data = aug.flow(pseudo_images, pseudo_labels, shuffle=True, batch_size=1)
-        train_generator = combined_pseudo_generator(labeled_data, pseudo_data, batch_size)
-        steps_per_epoch = int(len(pseudo_labels) / batch_size)
-    else:
-        train_generator = aug.flow(images, labels, batch_size=batch_size)
-        steps_per_epoch = int(len(labels) / batch_size)
+    train_generator = aug.flow(images, labels, batch_size=batch_size)
+    steps_per_epoch = int(len(labels) / batch_size)
 
     if print_test_error:
         history = model.fit(train_generator, epochs=train_iter,  verbose=verb,
