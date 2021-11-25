@@ -20,7 +20,7 @@ def main(argv):
     FLAGS.lt = 'triplet'
     FLAGS.network = 'ssdl'  # currently only supports ssdl
     dso, data_config = train_utils.set_dataset(FLAGS.dataset, FLAGS.lt, FLAGS.semi)
-    model = joe_utils.get_joe_model(data_config, FLAGS.opt, FLAGS.lr, loss_all_layers=FLAGS.all_loss)
+    model = joe_utils.get_joe_model(data_config, FLAGS.opt, FLAGS.lr, loss_all_layers=FLAGS.all_loss, custom=True)
     os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = "true"
     # set up logging details
     log_dir, log_name = train_utils.get_log_name(FLAGS, data_config, prefix='joegap-')
@@ -57,7 +57,7 @@ def main(argv):
     signal.signal(signal.SIGINT, exit_gracefully)
 
     # start training on N-labelled and log accuracy
-    joe_utils.start_training(model, dso, FLAGS.epochs, FLAGS.semi, FLAGS.batch_size)
+    joe_utils.start_custom_training(model, dso, FLAGS.epochs, FLAGS.semi, FLAGS.batch_size)
     ac = train_utils.log_accuracy(model, dso, FLAGS.lt, FLAGS.semi, labelling=FLAGS.lbl)
     logging.info("after training, Test accuracy : {:.2f} %".format(ac))
     # apply self-training

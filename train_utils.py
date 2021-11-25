@@ -6,14 +6,14 @@ from sklearn.metrics import accuracy_score
 from utils.utils import feature_scaling
 from utils.shallow_classifiers import shallow_clf_accuracy
 from scipy.spatial.distance import cdist
+import time
 # suppress TF low level logging info
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = "3"
-from tensorflow.keras import models
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from models.model import get_model, get_callbacks
 from data_utils import get_dataset
 import tensorflow as tf
-import time
+
 # from utils.ramps import linear_rampup
 # from data_utils.SS_generator import combined_pseudo_generator
 template1 = "Labeled= {} selection={}% iterations= {}"
@@ -99,7 +99,11 @@ def get_network_embeddings(model, input_images, lt,  bs=100):
     :param bs: size of mini-batch
     :return: embeddings
     """
-    return model.predict(input_images, batch_size=bs)
+    emb = model.predict(input_images, batch_size=bs)
+    if isinstance(emb, list):
+        emb = emb[-1]
+    return emb
+
     # if 'face' in lt:
     #     inp = model.input[0]                        # input placeholder
     #     layer = -3
