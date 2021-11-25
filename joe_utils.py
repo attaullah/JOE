@@ -356,10 +356,10 @@ def custom_training(model, loss_fn, optimizer, train_dataset, epochs=2, csv_path
         for step, (x_batch_train, y_batch_train) in enumerate(train_dataset):
             loss_value = []
             with tf.GradientTape() as tape:
-                logits = model(x_batch_train, training=True)  # Logits for this minibatch
+                outputs = model(x_batch_train, training=True)
                 # Compute the loss value for this minibatch.
-                for k in range(n_layers):
-                    loss = loss_fn(y_batch_train, logits[k])
+                for k in range(n_layers):  # https://newbedev.com/tensorflow-2-0-custom-loss-function-with-multiple-inputs
+                    loss = loss_fn(y_batch_train, outputs[k])
                     loss_value.append(loss)
                     loss_trackers[k].update_state(loss)
 
